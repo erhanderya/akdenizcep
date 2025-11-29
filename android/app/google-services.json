@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "162322167678",
+    "project_id": "akdeniz-cep-eae6d",
+    "storage_bucket": "akdeniz-cep-eae6d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162322167678:android:0293df0816a5ba89cee52f",
+        "android_client_info": {
+          "package_name": "com.example.akdeniz_cep"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_EWm0y_YYxVy4kCIJ_cNQLqIQOEPUrwk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

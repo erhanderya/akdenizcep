@@ -986,10 +986,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          Icon(
-            Icons.celebration,
-            color: isPast ? Colors.grey.shade400 : const Color(0xFF667eea),
-          ),
         ],
       ),
     );

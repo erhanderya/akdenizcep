@@ -36,10 +36,10 @@ class _MainPageState extends State<MainPage> {
   final String baseUrl = 'https://api.openweathermap.org/data/2.5';
 
   final List<String> imgList = [
-    'https://picsum.photos/800/400?random=1',
-    'https://picsum.photos/800/400?random=2',
-    'https://picsum.photos/800/400?random=3',
-    'https://picsum.photos/800/400?random=4',
+ 'https://webis.akdeniz.edu.tr/uploads/1/news/resim/1-27_1600x1067-1024x683.jpg',
+    'https://webis.akdeniz.edu.tr/uploads/13/content/118193167_3256535991100879_8477934973800141306_n.png',
+    'https://webis.akdeniz.edu.tr/uploads/1/news/resim/1-27_1600x1067-1024x683.jpg',
+    'https://webis.akdeniz.edu.tr/uploads/13/content/118193167_3256535991100879_8477934973800141306_n.png',
   ];
 
   @override
@@ -502,7 +502,7 @@ class _MainPageState extends State<MainPage> {
           options: CarouselOptions(
             autoPlay: true,
             enlargeCenterPage: false,
-            autoPlayInterval: const Duration(seconds: 4),
+            autoPlayInterval: const Duration(seconds: 8),
             autoPlayAnimationDuration: const Duration(milliseconds: 800),
             aspectRatio: 1.8,
             viewportFraction: 1.0,

@@ -74,9 +74,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Row(
+          children: [
+          Image.asset('assets/akdeniz_cep_logo.png', height: 40),
+            Text(
           'Akdeniz Cep',
           style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          ],
         ),
         actions: [
           StreamBuilder<User?>(

@@ -9,7 +9,6 @@ class YemekhanePage extends StatefulWidget {
   State<YemekhanePage> createState() => _YemekhanePageState();
 }
 
-
 class _YemekhanePageState extends State<YemekhanePage> {
   String? userId = FirebaseAuth.instance.currentUser?.uid;
   bool isLiked = false;
@@ -32,9 +31,15 @@ class _YemekhanePageState extends State<YemekhanePage> {
 
   List<Map<String, dynamic>> _weeklyMenu = [];
 
-  // KYK için - mock veri 
+  // KYK için - mock veri
   static const List<String> _kykDays = [
-    'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'
+    'Pazartesi',
+    'Salı',
+    'Çarşamba',
+    'Perşembe',
+    'Cuma',
+    'Cumartesi',
+    'Pazar'
   ];
   final List<Map<String, dynamic>> _kykWeeklyMenu = [
     {
@@ -179,7 +184,6 @@ class _YemekhanePageState extends State<YemekhanePage> {
                 Map<String, dynamic>.from(data[dayKey]);
             List<Map<String, dynamic>> meals = [];
 
-   
             List<int> sortedKeys = dayData.keys
                 .map((k) => int.tryParse(k.toString()) ?? -1)
                 .where((k) => k >= 0)
@@ -189,7 +193,6 @@ class _YemekhanePageState extends State<YemekhanePage> {
             for (int key in sortedKeys) {
               String mealString = dayData[key.toString()]?.toString() ?? '';
               if (mealString.isNotEmpty) {
-          
                 final parsed = _parseMealString(mealString);
                 meals.add(parsed);
               }
@@ -223,9 +226,7 @@ class _YemekhanePageState extends State<YemekhanePage> {
     }
   }
 
-
   Map<String, dynamic> _parseMealString(String mealString) {
-
     final regex = RegExp(r'^(.+?)(\d+)$');
     final match = regex.firstMatch(mealString.trim());
 
@@ -234,7 +235,6 @@ class _YemekhanePageState extends State<YemekhanePage> {
       int calorie = int.tryParse(match.group(2) ?? '0') ?? 0;
       return {'name': name, 'calorie': calorie};
     }
-
 
     return {'name': mealString.trim(), 'calorie': 0};
   }
@@ -301,7 +301,6 @@ class _YemekhanePageState extends State<YemekhanePage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -343,10 +342,14 @@ class _YemekhanePageState extends State<YemekhanePage> {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         margin: const EdgeInsets.symmetric(vertical: 2),
         decoration: BoxDecoration(
-          color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.transparent,
+          color: selected
+              ? const Color.fromARGB(255, 21, 138, 173)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.grey.shade300,
+            color: selected
+                ? const Color.fromARGB(255, 21, 138, 173)
+                : Colors.grey.shade300,
             width: 1.2,
           ),
         ),
@@ -363,8 +366,10 @@ class _YemekhanePageState extends State<YemekhanePage> {
   }
 
   // KYK menüsü için stateful index ve controller
-  int _kykCurrentIndex = DateTime.now().weekday - 1 < 0 ? 0 : DateTime.now().weekday - 1;
-  late final PageController _kykPageController = PageController(initialPage: _kykCurrentIndex);
+  int _kykCurrentIndex =
+      DateTime.now().weekday - 1 < 0 ? 0 : DateTime.now().weekday - 1;
+  late final PageController _kykPageController =
+      PageController(initialPage: _kykCurrentIndex);
 
   Widget _buildKykMenuPage() {
     return Column(
@@ -391,10 +396,14 @@ class _YemekhanePageState extends State<YemekhanePage> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 7),
                       decoration: BoxDecoration(
-                        color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.transparent,
+                        color: selected
+                            ? const Color.fromARGB(255, 21, 138, 173)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.grey.shade300,
+                          color: selected
+                              ? const Color.fromARGB(255, 21, 138, 173)
+                              : Colors.grey.shade300,
                           width: 1.1,
                         ),
                       ),
@@ -430,7 +439,8 @@ class _YemekhanePageState extends State<YemekhanePage> {
               final kahvalti = dayData['kahvalti'] as List;
               final aksam = dayData['aksam'] as List;
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -479,7 +489,8 @@ class _YemekhanePageState extends State<YemekhanePage> {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 3),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(child: Text(m['name'])),
                                 ],
@@ -511,7 +522,8 @@ class _YemekhanePageState extends State<YemekhanePage> {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 3),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(child: Text(m['name'])),
                                 ],
@@ -531,7 +543,6 @@ class _YemekhanePageState extends State<YemekhanePage> {
   }
 
   Widget _buildMenuPage() {
-
     if (_isLoadingMenu) {
       return const Center(
         child: Column(
@@ -585,10 +596,14 @@ class _YemekhanePageState extends State<YemekhanePage> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 7),
                       decoration: BoxDecoration(
-                        color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.transparent,
+                        color: selected
+                            ? const Color.fromARGB(255, 21, 138, 173)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.grey.shade300,
+                          color: selected
+                              ? const Color.fromARGB(255, 21, 138, 173)
+                              : Colors.grey.shade300,
                           width: 1.1,
                         ),
                       ),
@@ -654,10 +669,8 @@ class _YemekhanePageState extends State<YemekhanePage> {
                               ),
                             ),
                           ),
-
                         const SizedBox(height: 10),
                         const Divider(),
-
                         const Text(
                           "Menü",
                           style: TextStyle(
@@ -666,8 +679,6 @@ class _YemekhanePageState extends State<YemekhanePage> {
                           ),
                         ),
                         const SizedBox(height: 6),
-
-  
                         if (meals.isEmpty)
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
@@ -700,10 +711,7 @@ class _YemekhanePageState extends State<YemekhanePage> {
                               ),
                             );
                           }),
-
-                    
                         Divider(),
-          
                         if (index == todayW - 1 &&
                             todayW >= 1 &&
                             todayW <= 5) ...[
@@ -843,84 +851,87 @@ class _YemekhanePageState extends State<YemekhanePage> {
   }
 
   Widget _buildHoursPage() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Akdeniz Üniversitesi\nMerkezi Yemekhane Hizmet Saatleri",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFC928),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Text(
-                  "Öğle Yemeği Hizmeti",
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          elevation: 4,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Akdeniz Üniversitesi\nMerkezi Yemekhane Hizmet Saatleri",
                   style: TextStyle(
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              const _HoursRow(
-                title: "Merkezi Yemekhane için",
-                time: "11.15 - 13.45",
-              ),
-              const _HoursRow(
-                title: "Diş Hekimliği Fak. Yemekhanesi için",
-                time: "11.30 - 13.30",
-              ),
-              const _HoursRow(
-                title: "Edebiyat Fak. Yemekhanesi için",
-                time: "12.00 - 13.30",
-              ),
-              const _HoursRow(
-                title: "İlahiyat Fak. Yemekhanesi için",
-                time: "11.30 - 13.30",
-              ),
-              const _HoursRow(
-                title: "Yakut Çarşı Yemekhanesi için",
-                time: "12.00 - 13.30",
-                addSuffix: "saatleri arasındadır.",
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF203A76),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Text(
-                  "Akşam Yemeği Hizmeti",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                const SizedBox(height: 16),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFC928),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Text(
+                    "Öğle Yemeği Hizmeti",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              const _HoursRow(
-                title: "Merkezi Yemekhane için",
-                time: "16.30 - 18.30",
-                addSuffix: "saatleri arasındadır.",
-              ),
-            ],
+                const SizedBox(height: 12),
+                const _HoursRow(
+                  title: "Merkezi Yemekhane için",
+                  time: "11.15 - 13.45",
+                ),
+                const _HoursRow(
+                  title: "Diş Hekimliği Fak. Yemekhanesi için",
+                  time: "11.30 - 13.30",
+                ),
+                const _HoursRow(
+                  title: "Edebiyat Fak. Yemekhanesi için",
+                  time: "12.00 - 13.30",
+                ),
+                const _HoursRow(
+                  title: "İlahiyat Fak. Yemekhanesi için",
+                  time: "11.30 - 13.30",
+                ),
+                const _HoursRow(
+                  title: "Yakut Çarşı Yemekhanesi için",
+                  time: "12.00 - 13.30",
+                  addSuffix: "saatleri arasındadır.",
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF203A76),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Text(
+                    "Akşam Yemeği Hizmeti",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const _HoursRow(
+                  title: "Merkezi Yemekhane için",
+                  time: "16.30 - 18.30",
+                  addSuffix: "saatleri arasındadır.",
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -997,7 +1008,6 @@ class _YemekhanePageState extends State<YemekhanePage> {
     fetchLikesAndDislikes();
   }
 }
-
 
 class _HoursRow extends StatelessWidget {
   final String title;

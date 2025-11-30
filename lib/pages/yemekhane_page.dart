@@ -9,6 +9,7 @@ class YemekhanePage extends StatefulWidget {
   State<YemekhanePage> createState() => _YemekhanePageState();
 }
 
+
 class _YemekhanePageState extends State<YemekhanePage> {
   String? userId = FirebaseAuth.instance.currentUser?.uid;
   bool isLiked = false;
@@ -17,10 +18,9 @@ class _YemekhanePageState extends State<YemekhanePage> {
   List<dynamic> dislikes = [];
   int todayW = DateTime.now().weekday;
   int _currentIndex = 0;
-  bool _isMenuPage = true;
+  int _selectedTabIndex = 0;
   late PageController _pageController;
   bool _isLoadingMenu = true;
-
 
   static const Map<String, String> _dayMapping = {
     'pzt': 'Pazartesi',
@@ -32,6 +32,125 @@ class _YemekhanePageState extends State<YemekhanePage> {
 
   List<Map<String, dynamic>> _weeklyMenu = [];
 
+  // KYK için - mock veri 
+  static const List<String> _kykDays = [
+    'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'
+  ];
+  final List<Map<String, dynamic>> _kykWeeklyMenu = [
+    {
+      'day': 'Pazartesi',
+      'kahvalti': [
+        {'name': 'Beyaz peynir'},
+        {'name': 'Zeytin'},
+        {'name': 'Haşlanmış yumurta'},
+        {'name': 'Ekmek'},
+        {'name': 'Çay'},
+      ],
+      'aksam': [
+        {'name': 'Mercimek çorbası'},
+        {'name': 'Tavuk sote'},
+        {'name': 'Pirinç pilavı'},
+        {'name': 'Yoğurt'},
+      ],
+    },
+    {
+      'day': 'Salı',
+      'kahvalti': [
+        {'name': 'Kaşar peyniri'},
+        {'name': 'Domates'},
+        {'name': 'Salatalık'},
+        {'name': 'Ekmek'},
+        {'name': 'Çay'},
+      ],
+      'aksam': [
+        {'name': 'Ezogelin çorbası'},
+        {'name': 'Kıymalı makarna'},
+        {'name': 'Mevsim salata'},
+        {'name': 'Meyve'},
+      ],
+    },
+    {
+      'day': 'Çarşamba',
+      'kahvalti': [
+        {'name': 'Beyaz peynir'},
+        {'name': 'Reçel'},
+        {'name': 'Zeytin'},
+        {'name': 'Ekmek'},
+        {'name': 'Çay'},
+      ],
+      'aksam': [
+        {'name': 'Tarhana çorbası'},
+        {'name': 'Etli kuru fasulye'},
+        {'name': 'Bulgur pilavı'},
+        {'name': 'Ayran'},
+      ],
+    },
+    {
+      'day': 'Perşembe',
+      'kahvalti': [
+        {'name': 'Kaşar peyniri'},
+        {'name': 'Zeytin'},
+        {'name': 'Bal'},
+        {'name': 'Ekmek'},
+        {'name': 'Çay'},
+      ],
+      'aksam': [
+        {'name': 'Domates çorbası'},
+        {'name': 'Fırın köfte'},
+        {'name': 'Patates püresi'},
+        {'name': 'Cacık'},
+      ],
+    },
+    {
+      'day': 'Cuma',
+      'kahvalti': [
+        {'name': 'Beyaz peynir'},
+        {'name': 'Domates'},
+        {'name': 'Salatalık'},
+        {'name': 'Ekmek'},
+        {'name': 'Çay'},
+      ],
+      'aksam': [
+        {'name': 'Şehriye çorbası'},
+        {'name': 'Izgara köfte'},
+        {'name': 'Pirinç pilavı'},
+        {'name': 'Yoğurt'},
+      ],
+    },
+    {
+      'day': 'Cumartesi',
+      'kahvalti': [
+        {'name': 'Kaşar peyniri'},
+        {'name': 'Reçel'},
+        {'name': 'Zeytin'},
+        {'name': 'Ekmek'},
+        {'name': 'Çay'},
+      ],
+      'aksam': [
+        {'name': 'Sebze çorbası'},
+        {'name': 'Tavuk haşlama'},
+        {'name': 'Bulgur pilavı'},
+        {'name': 'Meyve'},
+      ],
+    },
+    {
+      'day': 'Pazar',
+      'kahvalti': [
+        {'name': 'Beyaz peynir'},
+        {'name': 'Bal'},
+        {'name': 'Zeytin'},
+        {'name': 'Ekmek'},
+        {'name': 'Çay'},
+      ],
+      'aksam': [
+        {'name': 'Yoğurt çorbası'},
+        {'name': 'Etli nohut'},
+        {'name': 'Pirinç pilavı'},
+        {'name': 'Ayran'},
+      ],
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +161,6 @@ class _YemekhanePageState extends State<YemekhanePage> {
     fetchLikesAndDislikes();
   }
 
-  /// Firebase'den haftalık yemek menüsünü çeker
   Future<void> fetchWeeklyMenu() async {
     try {
       final snapshot = await FirebaseFirestore.instance
@@ -176,8 +294,13 @@ class _YemekhanePageState extends State<YemekhanePage> {
   }
 
   int getTotalCalories(List meals) {
-    return meals.fold(0, (sum, item) => sum + (item['calorie'] as int));
+    return meals.fold(0, (sum, item) {
+      final calorie = item['calorie'];
+      if (calorie is int) return sum + calorie;
+      return sum;
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -186,46 +309,224 @@ class _YemekhanePageState extends State<YemekhanePage> {
       body: Column(
         children: [
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _tabButton("Yemek Listesi", true),
-              const SizedBox(width: 8),
-              _tabButton("Yemekhane Bilgileri", false),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _tabButton("Yemek Listesi", 0),
+                _tabButton("Yemekhane Bilgileri", 1),
+                _tabButton("KYK Yemek", 2),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Expanded(
-            child: _isMenuPage ? _buildMenuPage() : _buildHoursPage(),
+            child: _selectedTabIndex == 0
+                ? _buildMenuPage()
+                : _selectedTabIndex == 1
+                    ? _buildHoursPage()
+                    : _buildKykMenuPage(),
           ),
         ],
       ),
     );
   }
 
-  Widget _tabButton(String text, bool isMenuTab) {
-    bool selected = (isMenuTab == _isMenuPage);
-
-    return ElevatedButton(
-      onPressed: () {
-        setState(() => _isMenuPage = isMenuTab);
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor:
-            selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.white,
-        foregroundColor: selected ? Colors.white : Colors.black87,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        elevation: selected ? 2 : 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: selected
-                ? const Color.fromARGB(255, 21, 138, 173)
-                : Colors.grey.shade300,
+  Widget _tabButton(String text, int tabIndex) {
+    bool selected = (_selectedTabIndex == tabIndex);
+    return GestureDetector(
+      onTap: () => setState(() => _selectedTabIndex = tabIndex),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        decoration: BoxDecoration(
+          color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.grey.shade300,
+            width: 1.2,
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: selected ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.w500,
+            fontSize: 15,
           ),
         ),
       ),
-      child: Text(text),
+    );
+  }
+
+  // KYK menüsü için stateful index ve controller
+  int _kykCurrentIndex = DateTime.now().weekday - 1 < 0 ? 0 : DateTime.now().weekday - 1;
+  late final PageController _kykPageController = PageController(initialPage: _kykCurrentIndex);
+
+  Widget _buildKykMenuPage() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: SizedBox(
+            height: 34,
+            child: Row(
+              children: List.generate(_kykWeeklyMenu.length, (index) {
+                bool selected = index == _kykCurrentIndex;
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _kykCurrentIndex = index;
+                        _kykPageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeInOut,
+                        );
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      decoration: BoxDecoration(
+                        color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.grey.shade300,
+                          width: 1.1,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          _kykWeeklyMenu[index]['day'],
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: selected ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: PageView.builder(
+            controller: _kykPageController,
+            itemCount: _kykWeeklyMenu.length,
+            onPageChanged: (index) {
+              setState(() {
+                _kykCurrentIndex = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              final dayData = _kykWeeklyMenu[index];
+              final kahvalti = dayData['kahvalti'] as List;
+              final aksam = dayData['aksam'] as List;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              dayData['day'],
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        const Divider(),
+                        const Text(
+                          "Kahvaltı Menüsü",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        if (kahvalti.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              'Kahvaltı menüsü bulunamadı',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          )
+                        else
+                          ...kahvalti.map((m) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text(m['name'])),
+                                ],
+                              ),
+                            );
+                          }),
+                        const Divider(),
+                        const Text(
+                          "Akşam Menüsü",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        if (aksam.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              'Akşam menüsü bulunamadı',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          )
+                        else
+                          ...aksam.map((m) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(child: Text(m['name'])),
+                                ],
+                              ),
+                            );
+                          }),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -272,31 +573,35 @@ class _YemekhanePageState extends State<YemekhanePage> {
               children: List.generate(_weeklyMenu.length, (index) {
                 bool selected = index == _currentIndex;
                 return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
-                    child: ChoiceChip(
-                      label: Text(
-                        _weeklyMenu[index]['day'],
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              selected ? FontWeight.bold : FontWeight.normal,
-                          color: selected ? Colors.white : Colors.black87,
+                  child: GestureDetector(
+                    onTap: () {
+                      _pageController.animateToPage(
+                        index,
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeInOut,
+                      );
+                      setState(() => _currentIndex = index);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      decoration: BoxDecoration(
+                        color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: selected ? const Color.fromARGB(255, 21, 138, 173) : Colors.grey.shade300,
+                          width: 1.1,
                         ),
                       ),
-                      selected: selected,
-                      onSelected: (_) {
-                        _pageController.animateToPage(
-                          index,
-                          duration: const Duration(milliseconds: 250),
-                          curve: Curves.easeInOut,
-                        );
-                        setState(() => _currentIndex = index);
-                      },
-                      selectedColor: const Color.fromARGB(255, 21, 138, 173),
-                      backgroundColor: Colors.grey[200],
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      child: Center(
+                        child: Text(
+                          _weeklyMenu[index]['day'],
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: selected ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -330,40 +635,25 @@ class _YemekhanePageState extends State<YemekhanePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              dayData['day'],
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(30, 21, 138, 173),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.local_fire_department,
-                                      size: 16,
-                                      color: Color.fromARGB(255, 21, 138, 173)),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    "$totalCal kcal",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                        Text(
+                          dayData['day'],
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
+                        if (totalCal > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2, bottom: 4),
+                            child: Text(
+                              'Toplam: $totalCal kcal',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
 
                         const SizedBox(height: 10),
                         const Divider(),

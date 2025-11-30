@@ -4,9 +4,14 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'package:akdeniz_cep/services/event_service.dart';
+import 'package:akdeniz_cep/models/event.dart';
+import 'package:akdeniz_cep/widgets/society_event_card.dart';
+import 'package:akdeniz_cep/pages/event_detail_page.dart';
+import 'package:intl/intl.dart';
 import 'package:weather/weather.dart';
 
 class MainPage extends StatefulWidget {
@@ -17,6 +22,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+    final EventService _eventService = EventService();
   bool isLoading = true;
   final WeatherFactory hava = WeatherFactory(
     "c5a6d8532079fc4ea84eefc593381ee0",
@@ -177,11 +183,6 @@ class _MainPageState extends State<MainPage> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.school,
-                size: 20,
-                color: Color.fromARGB(255, 21, 138, 173),
-              ),
               const SizedBox(width: 8),
               const Text(
                 'Dönem İlerlemesi',
@@ -245,9 +246,79 @@ class _MainPageState extends State<MainPage> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: _buildTermProgressCard(),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: _buildUpcomingSocietyEvents(),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildUpcomingSocietyEvents() {
+    return StreamBuilder<List<Event>>(
+      stream: _eventService.getEventsStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return const SizedBox();
+        }
+        final events = (snapshot.data ?? [])
+            .where((event) {
+              final now = DateTime.now();
+              final diff = event.date.difference(now).inDays;
+              return diff >= 0 && diff <= 14;
+            })
+            .toList();
+        if (events.isEmpty) {
+          return const SizedBox();
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Yaklaşan Topluluk Etkinlikleri',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
+            ),
+            const SizedBox(height: 10),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: events.length > 3 ? 3 : events.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final event = events[index];
+                return SocietyEventCard(
+                  event: event,
+                  dateFormat: DateFormat('d MMM, HH:mm', 'tr_TR'),
+                  attendeeCount: event.attendeeCount,
+                  canDelete: false,
+                  onDelete: null,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EventDetailPage(
+                          event: event,
+                          isPresident: false,
+                          societyId: event.societyId,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
